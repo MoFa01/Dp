@@ -1,0 +1,15 @@
+C:\Users\PC\Desktop\temp\bin\Debug\net6.0-windows\temp.exe
+C:\Users\PC\Desktop\temp\bin\Debug\net6.0-windows\temp.deps.json
+C:\Users\PC\Desktop\temp\bin\Debug\net6.0-windows\temp.runtimeconfig.json
+C:\Users\PC\Desktop\temp\bin\Debug\net6.0-windows\temp.dll
+C:\Users\PC\Desktop\temp\bin\Debug\net6.0-windows\temp.pdb
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.csproj.AssemblyReference.cache
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.AssemblyInfoInputs.cache
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.AssemblyInfo.cs
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.csproj.CoreCompileInputs.cache
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.dll
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\refint\temp.dll
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.pdb
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\temp.genruntimeconfig.cache
+C:\Users\PC\Desktop\temp\obj\Debug\net6.0-windows\ref\temp.dll
