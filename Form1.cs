@@ -5,7 +5,6 @@ namespace temp
 {
     public partial class Form1 : Form
     {
-        private List<Worker> workers;
         // Define controls for the admin panel
         private Button btnViewAllWorkers;
         private Button btnViewResidentInfo;
@@ -13,21 +12,16 @@ namespace temp
         private Button btnWorkerManagement;
         private Button btnRoomStatusMonitoring;
         private Button btnBackToLogin;
+        private readonly DataStore dataStore = DataStore.Instance;
+        private readonly RoomStatusManager roomStatusManager = new();
 
         public Form1()
         {
             InitializeComponent();
-            InitializeDummyWorkers(); // Populate dummy data
+
+            roomStatusManager.Attach(new RoomStatusLogger());
         }
-        private void InitializeDummyWorkers()
-        {
-            workers = new List<Worker>
-            {
-                new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" },
-                new Worker { Id = "2", Name = "Bob", email = "bob@example.com", Password = "5678", Contact = "987-654-3210", Salary = 40000, JobTitle = "Receptionist", Token = "def456" },
-                new Worker { Id = "3", Name = "Charlie", email = "charlie@example.com", Password = "abcd", Contact = "456-789-0123", Salary = 45000, JobTitle = "Chef", Token = "ghi789" },
-            };
-        }
+       
 
         private void btnLoginAsAdmin_Click(object sender, EventArgs e)
         {
@@ -205,31 +199,130 @@ namespace temp
             var dgvWorkers = new DataGridView
             {
                 Location = new System.Drawing.Point(50, 50),
-                Width = 600,
+                Width = 1300,
                 Height = 300,
-                ReadOnly = true,
+                ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
 
             // Set DataGridView data source
-            dgvWorkers.DataSource = workers;
+            dgvWorkers.DataSource = dataStore.Workers;
 
             // Create a Back button
             var btnBackToAdminPanel = new Button
             {
                 Text = "Back",
-                Location = new System.Drawing.Point(50, 370),
+                Location = new System.Drawing.Point(50, 450),
                 Width = 200,
                 Height = 50,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
             btnBackToAdminPanel.Click += (s, e) => ShowAdminPanel();
+            
+            var btnAddWorker = new Button
+            {
+                Text = "Add Worker",
+                Location = new System.Drawing.Point(50,370),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnAddWorker.Click += (s, e) => ShowAddWorkerForm();
+
+
+
 
             // Add controls to the form
             this.Controls.Add(dgvWorkers);
             this.Controls.Add(btnBackToAdminPanel);
+            this.Controls.Add(btnAddWorker);
+
 
             
+        }
+        private void ShowAddWorkerForm()
+        {
+            // Clear previous controls
+            this.Controls.Clear();
+
+            // Create input fields for worker details
+            var lblName = new Label { Text = "Name:", Location = new System.Drawing.Point(50, 50), AutoSize = true };
+            var txtName = new TextBox { Location = new System.Drawing.Point(150, 50), Width = 300 };
+
+            var lblEmail = new Label { Text = "Email:", Location = new System.Drawing.Point(50, 100), AutoSize = true };
+            var txtEmail = new TextBox { Location = new System.Drawing.Point(150, 100), Width = 300 };
+
+            var lblPassword = new Label { Text = "Password:", Location = new System.Drawing.Point(50, 150), AutoSize = true };
+            var txtPassword = new TextBox { Location = new System.Drawing.Point(150, 150), Width = 300 };
+
+            var lblContact = new Label { Text = "Contact:", Location = new System.Drawing.Point(50, 200), AutoSize = true };
+            var txtContact = new TextBox { Location = new System.Drawing.Point(150, 200), Width = 300 };
+
+            var lblSalary = new Label { Text = "Salary:", Location = new System.Drawing.Point(50, 250), AutoSize = true };
+            var txtSalary = new TextBox { Location = new System.Drawing.Point(150, 250), Width = 300 };
+
+            var lblJobTitle = new Label { Text = "Job Title:", Location = new System.Drawing.Point(50, 300), AutoSize = true };
+            var txtJobTitle = new TextBox { Location = new System.Drawing.Point(150, 300), Width = 300 };
+
+            // Submit Button
+            var btnSubmit = new Button
+            {
+                Text = "Add Worker",
+                Location = new System.Drawing.Point(50, 350),
+                Width = 150,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnSubmit.Click += (s, e) =>
+            {
+                try
+                {
+                    var worker = new Worker
+                    {
+                        Name = txtName.Text,
+                        email = txtEmail.Text,
+                        Password = txtPassword.Text,
+                        Contact = txtContact.Text,
+                        Salary = decimal.Parse(txtSalary.Text),
+                        JobTitle = txtJobTitle.Text
+                    };
+                    dataStore.AddWorker(worker);
+                   
+                    MessageBox.Show("Worker added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ShowAdminPanel(); // Return to admin panel
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(210, 350),
+                Width = 150,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowAdminPanel();
+
+            // Add controls to the form
+            this.Controls.Add(lblName);
+            this.Controls.Add(txtName);
+            this.Controls.Add(lblEmail);
+            this.Controls.Add(txtEmail);
+            this.Controls.Add(lblPassword);
+            this.Controls.Add(txtPassword);
+            this.Controls.Add(lblContact);
+            this.Controls.Add(txtContact);
+            this.Controls.Add(lblSalary);
+            this.Controls.Add(txtSalary);
+            this.Controls.Add(lblJobTitle);
+            this.Controls.Add(txtJobTitle);
+            this.Controls.Add(btnSubmit);
+            this.Controls.Add(btnBack);
         }
     
 
