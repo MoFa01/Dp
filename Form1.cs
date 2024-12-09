@@ -198,7 +198,7 @@ namespace temp
             // Create DataGridView to display workers
             var dgvWorkers = new DataGridView
             {
-                Location = new System.Drawing.Point(50, 50),
+                Location = new System.Drawing.Point(50, 450),
                 Width = 1300,
                 Height = 300,
                 ReadOnly = false,
@@ -212,7 +212,7 @@ namespace temp
             var btnBackToAdminPanel = new Button
             {
                 Text = "Back",
-                Location = new System.Drawing.Point(50, 450),
+                Location = new System.Drawing.Point(50, 50),
                 Width = 200,
                 Height = 50,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
@@ -222,7 +222,7 @@ namespace temp
             var btnAddWorker = new Button
             {
                 Text = "Add Worker",
-                Location = new System.Drawing.Point(50,370),
+                Location = new System.Drawing.Point(50,100),
                 Width = 300,
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)

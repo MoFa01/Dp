@@ -52,6 +52,11 @@ public sealed class DataStore
             });
 
         }
+
+        
+        workers.Add( new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
+               
+            
     }
     public void AddResident(Resident resident) => residents.Add(resident);
 
@@ -103,12 +108,11 @@ public sealed class DataStore
 
     public void AddWorker(Worker worker)
     {
-        Guid guid = Guid.NewGuid();
-        string guidString = guid.ToString();
-        worker.Id = guidString;
-
+        
         ITokenService realService = new TokenService();
         ITokenService proxy = new TokenServiceProxy(realService);
+        worker.Id = proxy.CreateUniqueiId();
+
 
         string token1 = proxy.CreateToken(worker.Id);
         worker.Token = token1;
