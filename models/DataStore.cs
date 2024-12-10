@@ -33,7 +33,7 @@ public sealed class DataStore
             {
                 RoomNumber = i,
                 Type = "Single",
-                IsOccupied = true,
+                IsOccupied = false,
                 BasePrice = 100
             });
             rooms.Add(new Room
@@ -55,8 +55,7 @@ public sealed class DataStore
 
         
         workers.Add( new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
-               
-            
+
     }
     public void AddResident(Resident resident) => residents.Add(resident);
 

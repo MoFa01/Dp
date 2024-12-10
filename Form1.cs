@@ -21,7 +21,7 @@ namespace temp
             roomStatusManager.Attach(new RoomStatusLogger());
         }
 
-
+        //-------------------->   ADMIN   <----------------------- 
         private void btnLoginAsAdmin_Click(object sender, EventArgs e)
         {
             ShowLoginForm("Admin");
@@ -130,7 +130,7 @@ namespace temp
             var btnBackToLogin = new Button
             {
                 Text = "Logout",
-                Location = new System.Drawing.Point(50, 130),
+                Location = new System.Drawing.Point(50, 380),
                 Width = 300,
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
@@ -587,10 +587,151 @@ namespace temp
             this.Controls.Add(btnDelete);
             this.Controls.Add(btnBack);
         }
+        //---------------------------------------------------------------------------------------- 
 
+
+        //------------------>     WORKER        <----------------------------------------------------
         private void btnLoginAsWorker_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Worker login feature coming soon!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show("Worker login feature coming soon!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Email Label
+            var lblEmail = new Label
+            {
+                Text = "Email:",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 100
+            };
+
+            // Email TextBox
+            var txtEmail = new TextBox
+            {
+                Location = new System.Drawing.Point(150, 50),
+                Width = 200
+            };
+
+            // Password Label
+            var lblPassword = new Label
+            {
+                Text = "Password:",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 100
+            };
+
+            // Password TextBox
+            var txtPassword = new TextBox
+            {
+                Location = new System.Drawing.Point(150, 100),
+                Width = 200,
+                PasswordChar = '*'
+            };
+
+            // Login Button
+            var btnLogin = new Button
+            {
+                Text = "Login",
+                Location = new System.Drawing.Point(50, 150),
+                Width = 100,
+                Height = 30
+            };
+            btnLogin.Click += (s, e) =>
+            {
+                var email = txtEmail.Text;
+                var password = txtPassword.Text;
+
+                var worker = dataStore.Workers.FirstOrDefault(w => w.email == email && w.Password == password);
+                if (worker != null)
+                {
+                    ShowWorkerPanel(); // Navigate to Worker Panel if login is successful
+                }
+                else
+                {
+                    MessageBox.Show("Invalid credentials. Please try again.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(200, 150),
+                Width = 100,
+                Height = 30
+            };
+            btnBack.Click += (s, e) =>
+            {
+                this.Controls.Clear();
+                InitializeComponent();
+            };
+
+            // Add controls to the form
+            this.Controls.Add(lblEmail);
+            this.Controls.Add(txtEmail);
+            this.Controls.Add(lblPassword);
+            this.Controls.Add(txtPassword);
+            this.Controls.Add(btnLogin);
+            this.Controls.Add(btnBack);
         }
+        private void ShowWorkerPanel()
+        {
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Resident Management Button
+            var btnResidentManagement = new Button
+            {
+                Text = "Resident Management",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            //btnResidentManagement.Click += (s, e) => ShowResidentManagement();
+
+            // Room Status Button
+            var btnRoomStatus = new Button
+            {
+                Text = "Room Status",
+                Location = new System.Drawing.Point(50, 130),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            //btnRoomStatus.Click += (s, e) => ShowRoomStatus();
+
+            // Calculate Resident Costs Button
+            var btnCalculateResidentCosts = new Button
+            {
+                Text = "Calculate Resident Costs",
+                Location = new System.Drawing.Point(50, 210),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            //btnCalculateResidentCosts.Click += (s, e) => ShowCalculateResidentCosts();
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(50, 290),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) =>
+            {
+                this.Controls.Clear();
+                InitializeComponent();
+            };
+            // Add controls to the form
+            this.Controls.Add(btnResidentManagement);
+            this.Controls.Add(btnRoomStatus);
+            this.Controls.Add(btnCalculateResidentCosts);
+            this.Controls.Add(btnBack);
+        }
+
     }
 }
