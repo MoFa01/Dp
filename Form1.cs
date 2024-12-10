@@ -815,7 +815,7 @@ namespace temp
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
-            //btnResidentManagement.Click += (s, e) => ShowResidentManagement();
+            btnResidentManagement.Click += (s, e) => ShowAllResidents();
 
             // Room Status Button
             var btnRoomStatus = new Button
@@ -894,7 +894,78 @@ namespace temp
             this.Controls.Add(dataGridView);
             this.Controls.Add(btnBack);
         }
+        private void ShowAllResidents()
+        {
+            // Clear previous controls
+            this.Controls.Clear();
 
+            // Create DataGridView to display workers
+            var dgvWorkers = new DataGridView
+            {
+                Location = new System.Drawing.Point(50, 450),
+                Width = 1300,
+                Height = 300,
+                ReadOnly = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            };
+
+            // Set DataGridView data source
+            dgvWorkers.DataSource = dataStore.Residents;
+
+            // Create a Back button
+            var btnBackToAdminPanel = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 200,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnBackToAdminPanel.Click += (s, e) => ShowWorkerPanel();
+
+            var btnAddWorker = new Button
+            {
+                Text = "Add Resident",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnAddWorker.Click += (s, e) => ShowAddWorkerForm();
+            var btnEditWorker = new Button
+            {
+                Text = "Edit Resident",
+                Location = new System.Drawing.Point(50, 160),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnEditWorker.Click += (s, e) => ShowEditWorkerForm();
+
+            var btnDeleteWorker = new Button
+            {
+                Text = "Delete Resident",
+                Location = new System.Drawing.Point(50, 220),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnDeleteWorker.Click += (s, e) => ShowDeleteWorkerForm();
+
+
+
+            // Add controls to the form
+            this.Controls.Add(dgvWorkers);
+            this.Controls.Add(btnBackToAdminPanel);
+            this.Controls.Add(btnAddWorker);
+            this.Controls.Add(btnEditWorker);
+            this.Controls.Add(btnDeleteWorker);
+
+
+
+
+
+        }
 
         //---------------------------------------------------------------------------------------- 
     }

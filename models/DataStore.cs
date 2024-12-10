@@ -52,11 +52,33 @@ public sealed class DataStore
             });
 
         }
-        
+        residents.Add(new Resident
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "John Doe",
+            phoneNumber = "123-456-7890",
+            email = "john.doe@example.com",
+            BoardingType = "Full Board",
+            CheckIn = DateTime.Now.AddDays(-5),
+            CheckOut = DateTime.Now.AddDays(5),
+            RoomNumber = 1
+        });
 
-        
-        workers.Add( new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
-        
+        residents.Add(new Resident
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Jane Smith",
+            phoneNumber = "098-765-4321",
+            email = "jane.smith@example.com",
+            BoardingType = "Half Board",
+            CheckIn = DateTime.Now.AddDays(-10),
+            CheckOut = DateTime.Now.AddDays(2),
+            RoomNumber = 7
+        });
+
+
+        workers.Add(new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
+
     }
     public void AddResident(Resident resident) => residents.Add(resident);
 
@@ -108,7 +130,7 @@ public sealed class DataStore
 
     public void AddWorker(Worker worker)
     {
-        
+
         ITokenService realService = new TokenService();
         ITokenService proxy = new TokenServiceProxy(realService);
         worker.Id = proxy.CreateUniqueiId();
@@ -282,19 +304,23 @@ public sealed class DataStore
     private decimal CalculateCost(Resident resident, Room room)
     {
         int numberOfNights = (resident.CheckOut - resident.CheckIn).Days; // here take care may lead to 0
-       
+
 
         var boardingCost = 0;
-        if(resident.BoardingType == "FullBoard"){
+        if (resident.BoardingType == "FullBoard")
+        {
             boardingCost = 50;
         }
-        else if(resident.BoardingType== "HalfBoard"){
+        else if (resident.BoardingType == "HalfBoard")
+        {
             boardingCost = 30;
         }
-        else if(resident.BoardingType== "BedAndBreakfast"){
+        else if (resident.BoardingType == "BedAndBreakfast")
+        {
             boardingCost = 15;
         }
-        else{
+        else
+        {
             throw new ArgumentException("Invalid room type");
         }
 
