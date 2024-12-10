@@ -150,6 +150,7 @@ namespace temp
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
+            btnViewResidentInfo.Click += (s, e) => ShowAllResidentsAdmin();
 
             btnTrackHotelIncome = new Button
             {
@@ -713,6 +714,44 @@ namespace temp
             this.Controls.Add(btnBack);
         }
 
+
+        private void ShowAllResidentsAdmin()
+        {
+            // Clear previous controls
+            this.Controls.Clear();
+
+            // Create DataGridView to display workers
+            var dgvWorkers = new DataGridView
+            {
+                Location = new System.Drawing.Point(50, 450),
+                Width = 1300,
+                Height = 300,
+                ReadOnly = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            };
+            if (dataStore.Residents is null || dataStore.Residents.Count == 0)
+            {
+
+            }
+            else
+            {
+                dgvWorkers.DataSource = dataStore.Residents;
+            }
+            
+        
+            var btnBackToWorkerPanel = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 200,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnBackToWorkerPanel.Click += (s, e) => ShowAdminPanel();
+
+            this.Controls.Add(dgvWorkers);
+            this.Controls.Add(btnBackToWorkerPanel);
+        }
         //---------------------------------------------------------------------------------------- 
 
 
@@ -1322,3 +1361,5 @@ namespace temp
         //---------------------------------------------------------------------------------------- 
     }
 }
+
+
