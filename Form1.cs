@@ -200,12 +200,21 @@ namespace temp
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 DataSource = dataStore.Rooms
             };
+            var btnAddRoom = new Button
+            {
+                Text = "Add Room",
+                Location = new System.Drawing.Point(50, 400),
+                Width = 150,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnAddRoom.Click += (s, e) => ShowAddRoomForm();
 
             // Back Button
             var btnBack = new Button
             {
                 Text = "Back",
-                Location = new System.Drawing.Point(50, 400),
+                Location = new System.Drawing.Point(50, 460),
                 Width = 150,
                 Height = 50,
                 Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
@@ -215,6 +224,7 @@ namespace temp
             // Add controls to the form
             this.Controls.Add(dataGridView);
             this.Controls.Add(btnBack);
+            this.Controls.Add(btnAddRoom);
         }
         private void ShowAllWorkers()
         {
@@ -587,6 +597,123 @@ namespace temp
             this.Controls.Add(btnDelete);
             this.Controls.Add(btnBack);
         }
+
+        private void ShowAddRoomForm()
+        {
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Room Number Label
+            var lblRoomNumber = new Label
+            {
+                Text = "Room Number:",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 120
+            };
+
+            // Room Number TextBox
+            var txtRoomNumber = new TextBox
+            {
+                Location = new System.Drawing.Point(180, 50),
+                Width = 200
+            };
+
+            // Room Type Label
+            var lblRoomType = new Label
+            {
+                Text = "Room Type:",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 120
+            };
+
+            // Room Type ComboBox
+            var cmbRoomType = new ComboBox
+            {
+                Location = new System.Drawing.Point(180, 100),
+                Width = 200,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbRoomType.Items.AddRange(new[] { "Single", "Double", "Triple" });
+
+            // Occupancy Status Label
+            var lblIsOccupied = new Label
+            {
+                Text = "Occupied:",
+                Location = new System.Drawing.Point(50, 150),
+                Width = 120
+            };
+
+            // Occupancy Status CheckBox
+            var chkIsOccupied = new CheckBox
+            {
+                Location = new System.Drawing.Point(180, 150)
+            };
+
+            // Add Room Button
+            var btnAddRoom = new Button
+            {
+                Text = "Add Room",
+                Location = new System.Drawing.Point(50, 200),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnAddRoom.Click += (s, e) =>
+            {
+                // Validate and add room
+                if (int.TryParse(txtRoomNumber.Text, out int roomNumber) && cmbRoomType.SelectedItem != null)
+                {
+                    string roomType = cmbRoomType.SelectedItem.ToString();
+                    bool isOccupied = chkIsOccupied.Checked;
+
+                    try
+                    {
+                        var existRoomId = dataStore.Rooms.Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
+                        if (existRoomId!= null)
+                        {
+                            MessageBox.Show($"Room with number {roomNumber} already exists.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        Room newRoom = RoomFactory.CreateRoom(roomType, roomNumber, isOccupied);
+                        dataStore.AddRoom(newRoom);
+                        MessageBox.Show("Room added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        ShowAdminPanel(); // Return to Admin Panel
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Invalid input. Please check your entries.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(200, 200),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowRoomStatus();
+
+            // Add controls to the form
+            this.Controls.Add(lblRoomNumber);
+            this.Controls.Add(txtRoomNumber);
+            this.Controls.Add(lblRoomType);
+            this.Controls.Add(cmbRoomType);
+            this.Controls.Add(lblIsOccupied);
+            this.Controls.Add(chkIsOccupied);
+            this.Controls.Add(btnAddRoom);
+            this.Controls.Add(btnBack);
+        }
+
+
         //---------------------------------------------------------------------------------------- 
 
 
@@ -699,7 +826,7 @@ namespace temp
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
-            //btnRoomStatus.Click += (s, e) => ShowRoomStatus();
+            btnRoomStatus.Click += (s, e) => ShowRoomStatusForWorker();
 
             // Calculate Resident Costs Button
             var btnCalculateResidentCosts = new Button
@@ -733,5 +860,42 @@ namespace temp
             this.Controls.Add(btnBack);
         }
 
+        private void ShowRoomStatusForWorker()
+        {
+            // Clear form controls
+            this.Controls.Clear();
+
+            // Display rooms in a DataGridView
+            var dataGridView = new DataGridView
+            {
+                Location = new System.Drawing.Point(50, 50),
+                Width = 1500,
+                Height = 300,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ReadOnly = true, // Make the DataGridView read-only
+                AllowUserToAddRows = false, // Prevent adding rows
+                AllowUserToDeleteRows = false, // Prevent deleting rows
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                DataSource = dataStore.Rooms
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(50, 400),
+                Width = 150,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowWorkerPanel();
+
+            // Add controls to the form
+            this.Controls.Add(dataGridView);
+            this.Controls.Add(btnBack);
+        }
+
+
+        //---------------------------------------------------------------------------------------- 
     }
 }

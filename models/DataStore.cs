@@ -34,28 +34,29 @@ public sealed class DataStore
                 RoomNumber = i,
                 Type = "Single",
                 IsOccupied = false,
-                BasePrice = 100
+                BasePrice = 50
             });
             rooms.Add(new Room
             {
                 RoomNumber = i + 6,
                 Type = "Double",
                 IsOccupied = false,
-                BasePrice = 200
+                BasePrice = 75
             });
             rooms.Add(new Room
             {
                 RoomNumber = i + 13,
                 Type = "Triple",
                 IsOccupied = false,
-                BasePrice = 300
+                BasePrice = 100
             });
 
         }
+        
 
         
         workers.Add( new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
-
+        
     }
     public void AddResident(Resident resident) => residents.Add(resident);
 
@@ -278,7 +279,26 @@ public sealed class DataStore
         return _authorizedWorkers.ContainsKey(token);
     }
 
+    private decimal CalculateCost(Resident resident, Room room)
+    {
+        int numberOfNights = (resident.CheckOut - resident.CheckIn).Days; // here take care may lead to 0
+       
 
+        var boardingCost = 0;
+        if(resident.BoardingType == "FullBoard"){
+            boardingCost = 50;
+        }
+        else if(resident.BoardingType== "HalfBoard"){
+            boardingCost = 30;
+        }
+        else if(resident.BoardingType== "BedAndBreakfast"){
+            boardingCost = 15;
+        }
+        else{
+            throw new ArgumentException("Invalid room type");
+        }
 
+        return (room.BasePrice + boardingCost) * numberOfNights;
+    }
 
 }
