@@ -2,3 +2,5 @@
 -> calculate the cost for each added resident and make list for transactions
 
 -> text the observer deign pattern
+
+-> for resident we can add [ IsActive , total cost , duration ].

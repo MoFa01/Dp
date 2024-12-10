@@ -144,7 +144,7 @@ namespace temp
 
             btnViewResidentInfo = new Button
             {
-                Text = "View Resident Information",
+                Text = "View Residents Information",
                 Location = new System.Drawing.Point(50, 130),
                 Width = 300,
                 Height = 60,
@@ -160,6 +160,7 @@ namespace temp
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
+            btnTrackHotelIncome.Click += (s, e) => ShowTrackHotelIncome(); 
 
 
 
@@ -737,8 +738,8 @@ namespace temp
             {
                 dgvWorkers.DataSource = dataStore.Residents;
             }
-            
-        
+
+
             var btnBackToWorkerPanel = new Button
             {
                 Text = "Back",
@@ -752,6 +753,87 @@ namespace temp
             this.Controls.Add(dgvWorkers);
             this.Controls.Add(btnBackToWorkerPanel);
         }
+
+        private void ShowTrackHotelIncome()
+        {
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Label for Income Tracking Period
+            var lblPeriod = new Label
+            {
+                Text = "Select Period:",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 200
+            };
+
+            // ComboBox for Selecting Period
+            var cmbPeriod = new ComboBox
+            {
+                Location = new System.Drawing.Point(250, 50),
+                Width = 200
+            };
+            cmbPeriod.Items.AddRange(new string[] { "Weekly", "Monthly", "Annual" });
+            cmbPeriod.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            // Button to Generate Report
+            var btnGenerate = new Button
+            {
+                Text = "Generate Report",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 200,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+
+            // ListBox to Display Report
+            var lstReport = new ListBox
+            {
+                Location = new System.Drawing.Point(50, 160),
+                Width = 900,
+                Height = 700
+            };
+
+            // Event for Generate Report Button
+            btnGenerate.Click += (s, e) =>
+            {
+                if (cmbPeriod.SelectedItem == null)
+                {
+                    MessageBox.Show("Please select a period.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Call TrackHotelIncomeReport function
+                string period = cmbPeriod.SelectedItem.ToString().ToLower();
+                List<string> report = dataStore.TrackHotelIncomeReport(period);
+
+                // Populate the ListBox with the report
+                lstReport.Items.Clear();
+                foreach (var item in report)
+                {
+                    lstReport.Items.Add(item);
+                }
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(260, 100),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowAdminPanel(); // Navigate back to Admin Panel
+
+            // Add controls to the form
+            this.Controls.Add(lblPeriod);
+            this.Controls.Add(cmbPeriod);
+            this.Controls.Add(btnGenerate);
+            this.Controls.Add(lstReport);
+            this.Controls.Add(btnBack);
+        }
+
         //---------------------------------------------------------------------------------------- 
 
 
@@ -866,16 +948,7 @@ namespace temp
             };
             btnRoomStatus.Click += (s, e) => ShowRoomStatusForWorker();
 
-            // Calculate Resident Costs Button
-            var btnCalculateResidentCosts = new Button
-            {
-                Text = "Calculate Resident Costs",
-                Location = new System.Drawing.Point(50, 210),
-                Width = 300,
-                Height = 60,
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
-            };
-            //btnCalculateResidentCosts.Click += (s, e) => ShowCalculateResidentCosts();
+           
 
             // Back Button
             var btnBack = new Button
@@ -894,7 +967,7 @@ namespace temp
             var btnAddWorker = new Button
             {
                 Text = "Add Resident",
-                Location = new System.Drawing.Point(50, 350),
+                Location = new System.Drawing.Point(50, 210),
                 Width = 300,
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
@@ -904,7 +977,6 @@ namespace temp
             // Add controls to the form
             this.Controls.Add(btnResidentManagement);
             this.Controls.Add(btnRoomStatus);
-            this.Controls.Add(btnCalculateResidentCosts);
             this.Controls.Add(btnBack);
             this.Controls.Add(btnAddWorker);
         }
@@ -1025,7 +1097,7 @@ namespace temp
                                 MessageBox.Show("Failed to delete Resident.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-            
+
                     }
                 }
                 else
@@ -1054,7 +1126,7 @@ namespace temp
             this.Controls.Add(btnEdit);
             this.Controls.Add(btnBackToWorkerPanel);
             this.Controls.Add(btnDelete);
-     
+
 
         }
         private void ShowEditResidentForm(Resident selectedResident)
@@ -1119,10 +1191,10 @@ namespace temp
                 Width = 200
             };
 
-           
-          
-            
-           
+
+
+
+
 
             // Save Button
             var btnSave = new Button
@@ -1227,7 +1299,7 @@ namespace temp
                 Width = 200,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            cmbBoardingType.Items.AddRange(new[] { "FullBoard", "HalfBoard", "BedAndBreakfast" });
+            cmbBoardingType.Items.AddRange(new[] { "FullBoard = $50", "HalfBoard = $30", "BedAndBreakfast = $15" });
 
             // var txtBoardingType = new TextBox
             // {
@@ -1306,6 +1378,21 @@ namespace temp
                     return;
                 }
 
+                var valOfBoardingType = "";
+                if (cmbBoardingType.SelectedItem.ToString() == "FullBoard = $50")
+                {
+                    valOfBoardingType = "FullBoard";
+                }
+                else if (cmbBoardingType.SelectedItem.ToString() == "HalfBoard = $30")
+                {
+                    valOfBoardingType = "HalfBoard";
+                }
+                else if (cmbBoardingType.SelectedItem.ToString() == "BedAndBreakfast = $15")
+                {
+                    valOfBoardingType = "BedAndBreakfast";
+                }
+
+
                 // Create Resident object
                 var resident = new Resident
                 {
@@ -1313,7 +1400,7 @@ namespace temp
                     Name = txtName.Text,
                     phoneNumber = txtPhoneNumber.Text,
                     email = txtEmail.Text,
-                    BoardingType = cmbBoardingType.SelectedItem.ToString(),
+                    BoardingType = valOfBoardingType,
                     CheckIn = dtpCheckIn.Value,
                     CheckOut = dtpCheckOut.Value,
                     RoomNumber = roomNumber
@@ -1322,7 +1409,11 @@ namespace temp
 
                 dataStore.AddResident(resident);
                 roomStatusManager.NotifyRoomStatusChange(roomExists);
-                MessageBox.Show("Resident added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                decimal costTotal = dataStore.CalculateCost(resident, roomExists);
+                var totalCost = costTotal.ToString();
+
+
+                MessageBox.Show($"Resident added successfully and The Total cost = {totalCost}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 // Go back to Resident List
                 ShowAllResidents();
@@ -1361,5 +1452,3 @@ namespace temp
         //---------------------------------------------------------------------------------------- 
     }
 }
-
-

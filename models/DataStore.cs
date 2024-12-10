@@ -203,6 +203,77 @@ public sealed class DataStore
         return totalIncome;
     }
 
+    public List<string> TrackHotelIncomeReport(string period)
+    {
+        DateTime now = DateTime.Now;
+        DateTime startDate = period.ToLower() switch
+        {
+            "weekly" => now.AddDays(-7),
+            "monthly" => now.AddMonths(-1),
+            "annual" => now.AddYears(-1),
+            _ => throw new ArgumentException("Invalid period. Use 'weekly', 'monthly', or 'annual'.")
+        };
+
+        decimal totalIncome = 0;
+        var reportLines = new List<string>();
+
+        // Add report header
+        reportLines.Add($"Hotel Income Report - {period.ToUpper()} Period");
+        reportLines.Add($"Report Generated: {now:yyyy-MM-dd HH:mm:ss}");
+        reportLines.Add($"Period Start: {startDate:yyyy-MM-dd}");
+        reportLines.Add($"Period End: {now:yyyy-MM-dd}");
+        reportLines.Add("--------------------------------------------");
+
+        foreach (var resident in residents)
+        {
+            // Check if the stay falls within the selected period
+            if (resident.CheckOut >= startDate && resident.CheckIn < now)
+            {
+                var room = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
+
+                if (room != null)
+                {
+                    // Determine boarding cost
+                    decimal boardingCost = resident.BoardingType switch
+                    {
+                        "FullBoard" => 50,
+                        "HalfBoard" => 30,
+                        "BedAndBreakfast" => 15,
+                        _ => throw new ArgumentException("Invalid boarding type")
+                    };
+
+                    // Adjust dates to fit the reporting period
+                    DateTime effectiveCheckIn = resident.CheckIn < startDate ? startDate : resident.CheckIn;
+                    DateTime effectiveCheckOut = resident.CheckOut > now ? now : resident.CheckOut;
+
+                    TimeSpan duration = effectiveCheckOut - effectiveCheckIn;
+                    decimal residentIncome = (room.BasePrice + boardingCost) * duration.Days;
+
+                    totalIncome += residentIncome;
+
+                    // Create a detailed report line for each resident
+                    reportLines.Add($"Resident Details:");
+                    reportLines.Add($"  Name: {resident.Name}");
+                    reportLines.Add($"  Room Number: {resident.RoomNumber}");
+                    reportLines.Add($"  Boarding Type: {resident.BoardingType}");
+                    reportLines.Add($"  Check-In: {resident.CheckIn:yyyy-MM-dd}");
+                    reportLines.Add($"  Check-Out: {resident.CheckOut:yyyy-MM-dd}");
+                    reportLines.Add($"  Effective Stay Period: {effectiveCheckIn:yyyy-MM-dd} to {effectiveCheckOut:yyyy-MM-dd}");
+                    reportLines.Add($"  Stay Duration: {duration.Days} days");
+                    reportLines.Add($"  Room Base Price: ${room.BasePrice} per day");
+                    reportLines.Add($"  Boarding Cost: ${boardingCost} per day");
+                    reportLines.Add($"  Total Resident Income: ${residentIncome:F2}");
+                    reportLines.Add("--------------------------------------------");
+                }
+            }
+        }
+
+        // Add total income summary
+        reportLines.Add($"TOTAL INCOME FOR {period.ToUpper()} PERIOD: ${totalIncome:F2}");
+
+        return reportLines;
+    }
+
     public string? IsAuthManger(string username, string password)
     {
         if (username == ManagerEmail && password == ManagerPassword)
@@ -294,9 +365,9 @@ public sealed class DataStore
         return _authorizedWorkers.ContainsKey(token);
     }
 
-    private decimal CalculateCost(Resident resident, Room room)
+    public decimal CalculateCost(Resident resident, Room room)
     {
-        int numberOfNights = (resident.CheckOut - resident.CheckIn).Days; // here take care may lead to 0
+        int numberOfNights = (resident.CheckOut - resident.CheckIn).Days + 1; // here take care may lead to 0
 
 
         var boardingCost = 0;
