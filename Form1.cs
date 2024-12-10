@@ -669,7 +669,7 @@ namespace temp
                     try
                     {
                         var existRoomId = dataStore.Rooms.Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
-                        if (existRoomId!= null)
+                        if (existRoomId != null)
                         {
                             MessageBox.Show($"Room with number {roomNumber} already exists.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
@@ -712,7 +712,6 @@ namespace temp
             this.Controls.Add(btnAddRoom);
             this.Controls.Add(btnBack);
         }
-
 
         //---------------------------------------------------------------------------------------- 
 
@@ -853,11 +852,22 @@ namespace temp
                 this.Controls.Clear();
                 InitializeComponent();
             };
+            var btnAddWorker = new Button
+            {
+                Text = "Add Resident",
+                Location = new System.Drawing.Point(50, 350),
+                Width = 300,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnAddWorker.Click += (s, e) => ShowAddResidentForm();
+
             // Add controls to the form
             this.Controls.Add(btnResidentManagement);
             this.Controls.Add(btnRoomStatus);
             this.Controls.Add(btnCalculateResidentCosts);
             this.Controls.Add(btnBack);
+            this.Controls.Add(btnAddWorker);
         }
 
         private void ShowRoomStatusForWorker()
@@ -908,12 +918,87 @@ namespace temp
                 ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
+            if (dataStore.Residents is null || dataStore.Residents.Count == 0)
+            {
 
-            // Set DataGridView data source
-            dgvWorkers.DataSource = dataStore.Residents;
+            }
+            else
+            {
+                dgvWorkers.DataSource = dataStore.Residents;
+            }
+            var btnEdit = new Button
+            {
+                Text = "Edit Selected Resident",
+                Location = new System.Drawing.Point(50, 210),
+                Width = 300,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnEdit.Click += (s, e) =>
+            {
+                if (dgvWorkers.CurrentRow != null)
+                {
+                    var selectedWorker = (Resident)dgvWorkers.CurrentRow.DataBoundItem;
+                    if (selectedWorker != null)
+                    {
+                        ShowEditResidentForm(selectedWorker);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a worker to edit.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            };
+
+
+            var btnDelete = new Button
+            {
+                Text = "Delete Selected Resident",
+                Location = new System.Drawing.Point(50, 110),
+                Width = 300,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnDelete.Click += (s, e) =>
+            {
+                if (dgvWorkers.CurrentRow != null)
+                {
+                    var selectedWorker = (Resident)dgvWorkers.CurrentRow.DataBoundItem;
+                    if (selectedWorker != null)
+                    {
+                        var confirmation = MessageBox.Show(
+                            $"Are you sure you want to delete Resident {selectedWorker.Name}?",
+                            "Confirm Deletion",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning);
+
+                        if (confirmation == DialogResult.Yes)
+                        {
+                            var isDeleted = dataStore.DeleteResident(selectedWorker.Id);
+                            if (isDeleted)
+                            {
+                                MessageBox.Show("Resident deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                dgvWorkers.DataSource = null;
+                                dgvWorkers.DataSource = dataStore.Residents; // Refresh the data grid
+                            }
+                            else
+                            {
+                                MessageBox.Show("Failed to delete Resident.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+            
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a worker to delete.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            };
+
+
 
             // Create a Back button
-            var btnBackToAdminPanel = new Button
+            var btnBackToWorkerPanel = new Button
             {
                 Text = "Back",
                 Location = new System.Drawing.Point(50, 50),
@@ -921,50 +1006,317 @@ namespace temp
                 Height = 50,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
-            btnBackToAdminPanel.Click += (s, e) => ShowWorkerPanel();
-
-            var btnAddWorker = new Button
-            {
-                Text = "Add Resident",
-                Location = new System.Drawing.Point(50, 100),
-                Width = 300,
-                Height = 60,
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
-            };
-            btnAddWorker.Click += (s, e) => ShowAddWorkerForm();
-            var btnEditWorker = new Button
-            {
-                Text = "Edit Resident",
-                Location = new System.Drawing.Point(50, 160),
-                Width = 300,
-                Height = 60,
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
-            };
-            btnEditWorker.Click += (s, e) => ShowEditWorkerForm();
-
-            var btnDeleteWorker = new Button
-            {
-                Text = "Delete Resident",
-                Location = new System.Drawing.Point(50, 220),
-                Width = 300,
-                Height = 60,
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
-            };
-            btnDeleteWorker.Click += (s, e) => ShowDeleteWorkerForm();
+            btnBackToWorkerPanel.Click += (s, e) => ShowWorkerPanel();
 
 
 
             // Add controls to the form
             this.Controls.Add(dgvWorkers);
-            this.Controls.Add(btnBackToAdminPanel);
-            this.Controls.Add(btnAddWorker);
-            this.Controls.Add(btnEditWorker);
-            this.Controls.Add(btnDeleteWorker);
+            this.Controls.Add(btnEdit);
+            this.Controls.Add(btnBackToWorkerPanel);
+            this.Controls.Add(btnDelete);
+     
+
+        }
+        private void ShowEditResidentForm(Resident selectedResident)
+        {
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Resident ID (read-only)
+            var lblId = new Label
+            {
+                Text = "Resident ID:",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 120
+            };
+            var txtId = new TextBox
+            {
+                Text = selectedResident.Id,
+                Location = new System.Drawing.Point(180, 50),
+                Width = 200,
+                ReadOnly = true
+            };
+
+            // Resident Name
+            var lblName = new Label
+            {
+                Text = "Name:",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 120
+            };
+            var txtName = new TextBox
+            {
+                Text = selectedResident.Name,
+                Location = new System.Drawing.Point(180, 100),
+                Width = 200
+            };
+
+            // Resident Phone Number
+            var lblPhoneNumber = new Label
+            {
+                Text = "Phone Number:",
+                Location = new System.Drawing.Point(50, 150),
+                Width = 120
+            };
+            var txtPhoneNumber = new TextBox
+            {
+                Text = selectedResident.phoneNumber,
+                Location = new System.Drawing.Point(180, 150),
+                Width = 200
+            };
+
+            // Resident Email
+            var lblEmail = new Label
+            {
+                Text = "Email:",
+                Location = new System.Drawing.Point(50, 200),
+                Width = 120
+            };
+            var txtEmail = new TextBox
+            {
+                Text = selectedResident.email,
+                Location = new System.Drawing.Point(180, 200),
+                Width = 200
+            };
+
+           
+          
+            
+           
+
+            // Save Button
+            var btnSave = new Button
+            {
+                Text = "Save Changes",
+                Location = new System.Drawing.Point(50, 450),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnSave.Click += (s, e) =>
+            {
+                // Update resident data
+                selectedResident.Name = txtName.Text;
+                selectedResident.phoneNumber = txtPhoneNumber.Text;
+                selectedResident.email = txtEmail.Text;
+
+                dataStore.EditResident(txtId.Text, selectedResident);
+
+                MessageBox.Show("Resident details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ShowAllResidents(); // Go back to Resident Management page
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(200, 450),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowAllResidents(); // Return to Resident Management page
+
+            // Add controls to the form
+            this.Controls.Add(lblId);
+            this.Controls.Add(txtId);
+            this.Controls.Add(lblName);
+            this.Controls.Add(txtName);
+            this.Controls.Add(lblPhoneNumber);
+            this.Controls.Add(txtPhoneNumber);
+            this.Controls.Add(lblEmail);
+            this.Controls.Add(txtEmail);
+            this.Controls.Add(btnSave);
+            this.Controls.Add(btnBack);
+        }
+        private void ShowAddResidentForm()
+        {
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Resident Name Label and TextBox
+            var lblName = new Label
+            {
+                Text = "Resident Name:",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 200
+            };
+            var txtName = new TextBox
+            {
+                Location = new System.Drawing.Point(250, 50),
+                Width = 200
+            };
+
+            // Resident Phone Number Label and TextBox
+            var lblPhoneNumber = new Label
+            {
+                Text = "Phone Number:",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 200
+            };
+            var txtPhoneNumber = new TextBox
+            {
+                Location = new System.Drawing.Point(250, 100),
+                Width = 200
+            };
+
+            // Resident Email Label and TextBox
+            var lblEmail = new Label
+            {
+                Text = "Email:",
+                Location = new System.Drawing.Point(50, 150),
+                Width = 200
+            };
+            var txtEmail = new TextBox
+            {
+                Location = new System.Drawing.Point(250, 150),
+                Width = 200
+            };
+
+            var lblBoardingType = new Label
+            {
+                Text = "Boarding Type:",
+                Location = new System.Drawing.Point(50, 200),
+                Width = 200
+            };
 
 
+            var cmbBoardingType = new ComboBox
+            {
+                Location = new System.Drawing.Point(250, 200),
+                Width = 200,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbBoardingType.Items.AddRange(new[] { "FullBoard", "HalfBoard", "BedAndBreakfast" });
+
+            // var txtBoardingType = new TextBox
+            // {
+            //     Location = new System.Drawing.Point(250, 200),
+            //     Width = 200
+            // };
+
+            // Check-in Date Label and DateTimePicker
+            var lblCheckIn = new Label
+            {
+                Text = "Check-in Date:",
+                Location = new System.Drawing.Point(50, 250),
+                Width = 200
+            };
+            var dtpCheckIn = new DateTimePicker
+            {
+                Location = new System.Drawing.Point(250, 250),
+                Format = DateTimePickerFormat.Short
+            };
+
+            // Check-out Date Label and DateTimePicker
+            var lblCheckOut = new Label
+            {
+                Text = "Check-out Date:",
+                Location = new System.Drawing.Point(50, 300),
+                Width = 200
+            };
+            var dtpCheckOut = new DateTimePicker
+            {
+                Location = new System.Drawing.Point(250, 300),
+                Format = DateTimePickerFormat.Short
+            };
+
+            // Room Number Label and TextBox
+            var lblRoomNumber = new Label
+            {
+                Text = "Room Number:",
+                Location = new System.Drawing.Point(50, 350),
+                Width = 200
+            };
+            var txtRoomNumber = new TextBox
+            {
+                Location = new System.Drawing.Point(250, 350),
+                Width = 200
+            };
+
+            // Add Resident Button
+            var btnAddResident = new Button
+            {
+                Text = "Add Resident",
+                Location = new System.Drawing.Point(50, 400),
+                Width = 200,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnAddResident.Click += (s, e) =>
+            {
+                // Validation: Check if room exists
+                int roomNumber;
+                if (!int.TryParse(txtRoomNumber.Text, out roomNumber))
+                {
+                    MessageBox.Show("Please enter a valid Room Number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Check if room exists
+                var roomExists = dataStore.Rooms.Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
+                if (roomExists == null)
+                {
+                    MessageBox.Show("Room not found. Please check the Room Number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (roomExists.IsOccupied)
+                {
+                    MessageBox.Show("Room Is Occupied. Please check the Room Number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Create Resident object
+                var resident = new Resident
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = txtName.Text,
+                    phoneNumber = txtPhoneNumber.Text,
+                    email = txtEmail.Text,
+                    BoardingType = cmbBoardingType.SelectedItem.ToString(),
+                    CheckIn = dtpCheckIn.Value,
+                    CheckOut = dtpCheckOut.Value,
+                    RoomNumber = roomNumber
+                };
 
 
+                dataStore.AddResident(resident);
+                roomStatusManager.NotifyRoomStatusChange(roomExists);
+                MessageBox.Show("Resident added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // Go back to Resident List
+                ShowAllResidents();
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(50, 460),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowAllResidents(); // Go back to Resident Management page
+
+            // Add controls to the form
+            this.Controls.Add(lblName);
+            this.Controls.Add(txtName);
+            this.Controls.Add(lblPhoneNumber);
+            this.Controls.Add(txtPhoneNumber);
+            this.Controls.Add(lblEmail);
+            this.Controls.Add(txtEmail);
+            this.Controls.Add(lblBoardingType);
+            this.Controls.Add(cmbBoardingType);
+            this.Controls.Add(lblCheckIn);
+            this.Controls.Add(dtpCheckIn);
+            this.Controls.Add(lblCheckOut);
+            this.Controls.Add(dtpCheckOut);
+            this.Controls.Add(lblRoomNumber);
+            this.Controls.Add(txtRoomNumber);
+            this.Controls.Add(btnAddResident);
+            this.Controls.Add(btnBack);
         }
 
         //---------------------------------------------------------------------------------------- 

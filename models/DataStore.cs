@@ -52,35 +52,23 @@ public sealed class DataStore
             });
 
         }
-        residents.Add(new Resident
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "John Doe",
-            phoneNumber = "123-456-7890",
-            email = "john.doe@example.com",
-            BoardingType = "Full Board",
-            CheckIn = DateTime.Now.AddDays(-5),
-            CheckOut = DateTime.Now.AddDays(5),
-            RoomNumber = 1
-        });
 
-        residents.Add(new Resident
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Jane Smith",
-            phoneNumber = "098-765-4321",
-            email = "jane.smith@example.com",
-            BoardingType = "Half Board",
-            CheckIn = DateTime.Now.AddDays(-10),
-            CheckOut = DateTime.Now.AddDays(2),
-            RoomNumber = 7
-        });
 
 
         workers.Add(new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
 
     }
-    public void AddResident(Resident resident) => residents.Add(resident);
+    public void AddResident(Resident resident)
+    {
+
+        ITokenService realService = new TokenService();
+        ITokenService proxy = new TokenServiceProxy(realService);
+        resident.Id = proxy.CreateUniqueiId();
+        residents.Add(resident);
+        var roomExists = rooms.Where(r => r.RoomNumber == resident.RoomNumber).FirstOrDefault();
+        roomExists.IsOccupied = true;
+        //dataStore.UpdateRoom(room);
+    }
 
 
     public void AddRoom(Room room) => rooms.Add(room);
@@ -251,29 +239,34 @@ public sealed class DataStore
         resident.CheckOut = updatedResident.CheckOut;
         resident.RoomNumber = updatedResident.RoomNumber;
 
-        // Ensure room assignment consistency
-        var assignedRoom = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-        if (assignedRoom != null)
-        {
-            assignedRoom.IsOccupied = true; // Mark the room as occupied
-        }
+        // // Ensure room assignment consistency
+        // var assignedRoom = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
+        // if (assignedRoom != null)
+        // {
+        //     assignedRoom.IsOccupied = true; // Mark the room as occupied
+        // }
 
         return true;
     }
     public bool DeleteResident(string residentId)
     {
         var resident = residents.FirstOrDefault(r => r.Id == residentId);
-
         if (resident == null)
         {
             return false; // Resident not found
         }
 
-        // Update room status to not occupied
-        var assignedRoom = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-        if (assignedRoom != null)
+        DateTime now = DateTime.Now;
+
+        if (resident.CheckOut > now)
         {
-            assignedRoom.IsOccupied = false;
+            // Update room status to not occupied
+            var assignedRoom = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
+            if (assignedRoom != null)
+            {
+                assignedRoom.IsOccupied = false;
+            }
+
         }
 
         residents.Remove(resident); // Remove resident from the list
