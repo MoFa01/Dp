@@ -9,7 +9,6 @@ namespace temp
         private Button btnViewAllWorkers;
         private Button btnViewResidentInfo;
         private Button btnTrackHotelIncome;
-        private Button btnWorkerManagement;
         private Button btnRoomStatusMonitoring;
         private Button btnBackToLogin;
         private readonly DataStore dataStore = DataStore.Instance;
@@ -85,7 +84,7 @@ namespace temp
             // Handle submit click
             btnSubmit.Click += (s, e) =>
             {
-                if (txtEmail.Text == "admin@gmail.com" && txtPassword.Text == "admin")
+                if (txtEmail.Text == dataStore.ManagerEmail && txtPassword.Text == dataStore.ManagerPassword)
                 {
                     MessageBox.Show("Admin Login Successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ShowAdminPanel();
@@ -161,23 +160,17 @@ namespace temp
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
 
-            btnWorkerManagement = new Button
-            {
-                Text = "Worker Management",
-                Location = new System.Drawing.Point(50, 290),
-                Width = 300,
-                Height = 60,
-                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
-            };
+
 
             btnRoomStatusMonitoring = new Button
             {
                 Text = "Room Status Monitoring",
-                Location = new System.Drawing.Point(50, 370),
+                Location = new System.Drawing.Point(50, 300),
                 Width = 300,
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
+            btnRoomStatusMonitoring.Click += (s, e) => ShowRoomStatus();
 
             // Add admin panel buttons to the form
             this.Controls.Add(btnViewAllWorkers);
@@ -185,10 +178,43 @@ namespace temp
 
             this.Controls.Add(btnViewResidentInfo);
             this.Controls.Add(btnTrackHotelIncome);
-            this.Controls.Add(btnWorkerManagement);
             this.Controls.Add(btnRoomStatusMonitoring);
 
             this.Controls.Add(btnBackToLogin);
+        }
+        private void ShowRoomStatus()
+        {
+            // Clear form controls
+            this.Controls.Clear();
+
+            // Display rooms in a DataGridView
+            var dataGridView = new DataGridView
+            {
+                Location = new System.Drawing.Point(50, 50),
+                Width = 1500,
+                Height = 300,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ReadOnly = true, // Make the DataGridView read-only
+                AllowUserToAddRows = false, // Prevent adding rows
+                AllowUserToDeleteRows = false, // Prevent deleting rows
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                DataSource = dataStore.Rooms
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(50, 400),
+                Width = 150,
+                Height = 50,
+                Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => ShowAdminPanel();
+
+            // Add controls to the form
+            this.Controls.Add(dataGridView);
+            this.Controls.Add(btnBack);
         }
         private void ShowAllWorkers()
         {

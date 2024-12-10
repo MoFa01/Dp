@@ -2,7 +2,7 @@ public sealed class DataStore
 {
     private static readonly DataStore instance = new DataStore();
 
-    private string ManagerName = "fahd", ManagerPassword = "12345", MangerToken = "12345";
+    public string ManagerEmail = "admin@gmail.com", ManagerPassword = "admin", MangerToken = "12345";
 
     private readonly List<Room> rooms = new();
     private readonly List<Worker> workers = new();
@@ -33,7 +33,7 @@ public sealed class DataStore
             {
                 RoomNumber = i,
                 Type = "Single",
-                IsOccupied = false,
+                IsOccupied = true,
                 BasePrice = 100
             });
             rooms.Add(new Room
@@ -195,7 +195,7 @@ public sealed class DataStore
 
     public string? IsAuthManger(string username, string password)
     {
-        if (username == ManagerName && password == ManagerPassword)
+        if (username == ManagerEmail && password == ManagerPassword)
         {
             return MangerToken;
         }
