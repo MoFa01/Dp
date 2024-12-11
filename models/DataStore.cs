@@ -391,4 +391,39 @@ public sealed class DataStore
         return (room.BasePrice + boardingCost) * numberOfNights;
     }
 
+
+    public void UpdateRoomStatusAfterCheckout()
+    {
+        DateTime currentTime = DateTime.Now;
+
+        // Find all rooms that should be marked as unoccupied
+        var roomsToUpdate = residents
+            .Where(r => r.CheckOut < currentTime)
+            .Select(r => r.RoomNumber)
+            .Distinct()
+            .ToList();
+
+        foreach (var roomNumber in roomsToUpdate)
+        {
+            // Find the specific room
+            var room = rooms.FirstOrDefault(r => r.RoomNumber == roomNumber);
+
+            if (room != null)
+            {
+                // Check if there are no active reservations for this room
+                bool hasActiveReservation = residents.Any(r =>
+                    r.RoomNumber == roomNumber &&
+                    r.CheckIn <= currentTime &&
+                    r.CheckOut > currentTime);
+
+                // Update room status only if no active reservations exist
+                if (!hasActiveReservation)
+                {
+                    room.IsOccupied = false;
+                }
+            }
+        }
+    }
+
+
 }

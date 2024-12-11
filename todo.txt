@@ -1,6 +1,4 @@
--> move the residents table to anther page becouse if it empty will make problems
--> calculate the cost for each added resident and make list for transactions
 
--> text the observer deign pattern
+-> test the observer deign pattern
 
 -> for resident we can add [ IsActive , total cost , duration ].

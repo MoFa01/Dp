@@ -242,11 +242,13 @@ namespace temp
                 ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
+            if(dataStore.Workers is null || dataStore.Workers.Count == 0){
 
-            // Set DataGridView data source
-            dgvWorkers.DataSource = dataStore.Workers;
+            }else{
+                dgvWorkers.DataSource = dataStore.Workers;
+            }
 
-            // Create a Back button
+            
             var btnBackToAdminPanel = new Button
             {
                 Text = "Back",
@@ -948,13 +950,11 @@ namespace temp
             };
             btnRoomStatus.Click += (s, e) => ShowRoomStatusForWorker();
 
-           
-
-            // Back Button
+        
             var btnBack = new Button
             {
                 Text = "Back",
-                Location = new System.Drawing.Point(50, 290),
+                Location = new System.Drawing.Point(50, 350),
                 Width = 300,
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
@@ -974,11 +974,27 @@ namespace temp
             };
             btnAddWorker.Click += (s, e) => ShowAddResidentForm();
 
+
+            var btnUpdateRoomStatusAfterCheckout = new Button
+            {
+                Text = "Update Room Status After Checkout",
+                Location = new System.Drawing.Point(50, 290),
+                Width = 400,
+                Height = 60,
+                Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
+            };
+            btnUpdateRoomStatusAfterCheckout.Click += (s, e) =>
+            {
+                dataStore.UpdateRoomStatusAfterCheckout();
+                MessageBox.Show("Rooms Updated seccessfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+
             // Add controls to the form
             this.Controls.Add(btnResidentManagement);
             this.Controls.Add(btnRoomStatus);
             this.Controls.Add(btnBack);
             this.Controls.Add(btnAddWorker);
+            this.Controls.Add(btnUpdateRoomStatusAfterCheckout);
         }
 
         private void ShowRoomStatusForWorker()
@@ -1405,7 +1421,8 @@ namespace temp
                     CheckOut = dtpCheckOut.Value,
                     RoomNumber = roomNumber
                 };
-
+                resident.TotalPrice = dataStore.CalculateCost(resident, roomExists);
+                resident.NumberOfNights = (resident.CheckOut - resident.CheckIn).Days + 1;
 
                 dataStore.AddResident(resident);
                 roomStatusManager.NotifyRoomStatusChange(roomExists);

@@ -9,4 +9,7 @@ public class Resident
     public DateTime CheckIn { get; set; } = DateTime.Now;
     public DateTime CheckOut { get; set; } 
     public int RoomNumber { get; set; }
+    //--
+    public int? NumberOfNights { get; set; }
+    public decimal? TotalPrice { get; set; }
 }
