@@ -160,7 +160,7 @@ namespace temp
                 Height = 60,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold)
             };
-            btnTrackHotelIncome.Click += (s, e) => ShowTrackHotelIncome(); 
+            btnTrackHotelIncome.Click += (s, e) => ShowTrackHotelIncome();
 
 
 
@@ -242,13 +242,16 @@ namespace temp
                 ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
-            if(dataStore.Workers is null || dataStore.Workers.Count == 0){
+            if (dataStore.Workers is null || dataStore.Workers.Count == 0)
+            {
 
-            }else{
+            }
+            else
+            {
                 dgvWorkers.DataSource = dataStore.Workers;
             }
 
-            
+
             var btnBackToAdminPanel = new Button
             {
                 Text = "Back",
@@ -901,11 +904,24 @@ namespace temp
                 }
             };
 
+
+            var btnRecoverPassword = new Button
+            {
+                Text = "Forgot Password?",
+                Location = new System.Drawing.Point(150, 150),
+                Width = 200,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnRecoverPassword.Click += (s, e) => ShowPasswordRecovery(); // Navigate to Recovery Screen
+
+
+
             // Back Button
             var btnBack = new Button
             {
                 Text = "Back",
-                Location = new System.Drawing.Point(200, 150),
+                Location = new System.Drawing.Point(350, 150),
                 Width = 100,
                 Height = 30
             };
@@ -916,6 +932,7 @@ namespace temp
             };
 
             // Add controls to the form
+            this.Controls.Add(btnRecoverPassword);
             this.Controls.Add(lblEmail);
             this.Controls.Add(txtEmail);
             this.Controls.Add(lblPassword);
@@ -923,6 +940,92 @@ namespace temp
             this.Controls.Add(btnLogin);
             this.Controls.Add(btnBack);
         }
+        private void ShowPasswordRecovery()
+        {
+            // Clear existing controls
+            this.Controls.Clear();
+
+            // Label for Email
+            var lblEmail = new Label
+            {
+                Text = "Enter Email:",
+                Location = new System.Drawing.Point(50, 50),
+                Width = 200
+            };
+
+            // TextBox for Email
+            var txtEmail = new TextBox
+            {
+                Location = new System.Drawing.Point(250, 50),
+                Width = 200
+            };
+
+            // Label for Token
+            var lblToken = new Label
+            {
+                Text = "Enter Token:",
+                Location = new System.Drawing.Point(50, 100),
+                Width = 200
+            };
+
+            // TextBox for Token
+            var txtToken = new TextBox
+            {
+                Location = new System.Drawing.Point(250, 100),
+                Width = 200
+            };
+
+            // Recover Button
+            var btnRecover = new Button
+            {
+                Text = "Recover Password",
+                Location = new System.Drawing.Point(50, 150),
+                Width = 200,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnRecover.Click += (s, e) =>
+            {
+                string email = txtEmail.Text;
+                string token = txtToken.Text;
+
+                // Call RecoverPassword method
+                string newPassword = dataStore.RecoverPassword(email, token);
+                if (newPassword != null)
+                {
+                    MessageBox.Show($"Password Reset Successful! New Password: {newPassword}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //ShowWorkerLogin(); // Navigate back to login
+                    this.Controls.Clear();
+                    InitializeComponent();
+                }
+                else
+                {
+                    MessageBox.Show("Invalid Email or Token.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
+            // Back Button
+            var btnBack = new Button
+            {
+                Text = "Back",
+                Location = new System.Drawing.Point(260, 150),
+                Width = 120,
+                Height = 40,
+                Font = new System.Drawing.Font("Arial", 10, System.Drawing.FontStyle.Bold)
+            };
+            btnBack.Click += (s, e) => {
+                this.Controls.Clear();
+                InitializeComponent();
+            };
+            // Add controls
+            this.Controls.Add(lblEmail);
+            this.Controls.Add(txtEmail);
+            this.Controls.Add(lblToken);
+            this.Controls.Add(txtToken);
+            this.Controls.Add(btnRecover);
+            this.Controls.Add(btnBack);
+        }
+
         private void ShowWorkerPanel()
         {
             // Clear existing controls
@@ -950,7 +1053,7 @@ namespace temp
             };
             btnRoomStatus.Click += (s, e) => ShowRoomStatusForWorker();
 
-        
+
             var btnBack = new Button
             {
                 Text = "Back",

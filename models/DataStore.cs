@@ -425,5 +425,12 @@ public sealed class DataStore
         }
     }
 
-
+    public string RecoverPassword(string email, string token ,string newPassword = "123455"){
+        var worker = workers.FirstOrDefault(w => w.email == email && w.Token == token);
+        if(worker == null){
+            return null;
+        }
+        worker.Password =  newPassword;
+        return newPassword;
+    }
 }
