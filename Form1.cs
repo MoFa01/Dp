@@ -808,9 +808,13 @@ namespace temp
                     return;
                 }
 
-                // Call TrackHotelIncomeReport function
                 string period = cmbPeriod.SelectedItem.ToString().ToLower();
-                List<string> report = dataStore.TrackHotelIncomeReport(period);
+                //List<string> report = dataStore.TrackHotelIncomeReport(period);
+                var reportObj = new HotelIncomeReport(dataStore.Residents, dataStore.Rooms, period);
+
+                // Generate the report
+                var report = reportObj.GenerateReport();
+
 
                 // Populate the ListBox with the report
                 lstReport.Items.Clear();
