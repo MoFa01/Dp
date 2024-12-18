@@ -975,6 +975,19 @@ namespace temp
                 Width = 200
             };
 
+            var lblnewPassword = new Label
+            {
+                Text = "Enter New Password:",
+                Location = new System.Drawing.Point(550, 50),
+                Width = 200
+            };
+
+            var txtnewPassword = new TextBox
+            {
+                Location = new System.Drawing.Point(750, 50),
+                Width = 200
+            };
+
             // Recover Button
             var btnRecover = new Button
             {
@@ -988,9 +1001,9 @@ namespace temp
             {
                 string email = txtEmail.Text;
                 string token = txtToken.Text;
-
+                string newPasswordRtext = txtnewPassword.Text;
                 // Call RecoverPassword method
-                string newPassword = dataStore.RecoverPassword(email, token);
+                string newPassword = dataStore.RecoverPassword(email, token,newPasswordRtext);
                 if (newPassword != null)
                 {
                     MessageBox.Show($"Password Reset Successful! New Password: {newPassword}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1024,6 +1037,8 @@ namespace temp
             this.Controls.Add(txtToken);
             this.Controls.Add(btnRecover);
             this.Controls.Add(btnBack);
+            this.Controls.Add(lblnewPassword);
+            this.Controls.Add(txtnewPassword);
         }
 
         private void ShowWorkerPanel()
