@@ -12,13 +12,13 @@ namespace temp
         private Button btnRoomStatusMonitoring;
         private Button btnBackToLogin;
         private readonly DataStore dataStore = DataStore.Instance;
-        private readonly RoomStatusManager roomStatusManager = new();
+        private IWorkerRepository workerRepository = new WorkerRepository();
+
 
         public Form1()
         {
             InitializeComponent();
 
-            roomStatusManager.Attach(new RoomStatusLogger());
         }
 
         //-------------------->   ADMIN   <----------------------- 
@@ -242,13 +242,13 @@ namespace temp
                 ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
-            if (dataStore.Workers is null || dataStore.Workers.Count == 0)
+            if (workerRepository.GetAllWorkers() is null || workerRepository.GetAllWorkers().Count == 0)
             {
 
             }
             else
             {
-                dgvWorkers.DataSource = dataStore.Workers;
+                dgvWorkers.DataSource = workerRepository.GetAllWorkers();
             }
 
 
@@ -351,7 +351,7 @@ namespace temp
                         Salary = decimal.Parse(txtSalary.Text),
                         JobTitle = txtJobTitle.Text
                     };
-                    dataStore.AddWorker(worker);
+                    workerRepository.AddWorker(worker);
 
                     MessageBox.Show("Worker added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ShowAdminPanel(); // Return to admin panel
@@ -433,7 +433,7 @@ namespace temp
                     worker.Salary = decimal.Parse(txtSalary.Text);
                     worker.JobTitle = txtJobTitle.Text;
 
-                    dataStore.UpdateWorker(worker);
+                    workerRepository.UpdateWorker(worker);
                     MessageBox.Show("Worker updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ShowEditWorkerForm(); // Return to worker selection
                 }
@@ -482,7 +482,7 @@ namespace temp
                 Width = 1500,
                 Height = 300,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                DataSource = dataStore.Workers
+                DataSource = workerRepository.GetAllWorkers()
             };
 
             // Edit Button
@@ -538,7 +538,7 @@ namespace temp
                 Width = 1500,
                 Height = 300,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                DataSource = dataStore.Workers
+                DataSource = workerRepository.GetAllWorkers()
             };
 
             // Delete Button
@@ -565,12 +565,12 @@ namespace temp
 
                         if (confirmation == DialogResult.Yes)
                         {
-                            var isDeleted = dataStore.DeleteWorker(selectedWorker.Id);
+                            var isDeleted = workerRepository.DeleteWorker(selectedWorker.Id);
                             if (isDeleted)
                             {
                                 MessageBox.Show("Worker deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 dataGridView.DataSource = null;
-                                dataGridView.DataSource = dataStore.Workers; // Refresh the data grid
+                                dataGridView.DataSource = workerRepository.GetAllWorkers(); // Refresh the data grid
                             }
                             else
                             {
@@ -897,7 +897,7 @@ namespace temp
                 var email = txtEmail.Text;
                 var password = txtPassword.Text;
 
-                var worker = dataStore.Workers.FirstOrDefault(w => w.email == email && w.Password == password);
+                var worker = workerRepository.GetAllWorkers().FirstOrDefault(w => w.email == email && w.Password == password);
                 if (worker != null)
                 {
                     ShowWorkerPanel(); // Navigate to Worker Panel if login is successful
@@ -1558,7 +1558,6 @@ namespace temp
                 resident.NumberOfNights = (resident.CheckOut.Date - resident.CheckIn.Date).Days;
 
                 dataStore.AddResident(resident);
-                roomStatusManager.NotifyRoomStatusChange(roomExists);
                 decimal costTotal = dataStore.CalculateCost(resident, roomExists);
                 var totalCost = costTotal.ToString();
 
