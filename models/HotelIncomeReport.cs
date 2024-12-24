@@ -1,11 +1,9 @@
-// Strategy interface for different period calculations
 public interface IPeriodStrategy
 {
     DateTime GetStartDate(DateTime endDate);
     string GetPeriodName();
 }
 
-// Concrete strategies for different periods
 public class WeeklyPeriodStrategy : IPeriodStrategy
 {
     public DateTime GetStartDate(DateTime endDate) => endDate.AddDays(-7);
@@ -24,7 +22,6 @@ public class AnnualPeriodStrategy : IPeriodStrategy
     public string GetPeriodName() => "Annual";
 }
 
-// Main report class using the strategy pattern
 public class HotelIncomeReport
 {
     private readonly IEnumerable<Resident> residents;

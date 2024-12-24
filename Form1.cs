@@ -1531,6 +1531,17 @@ namespace temp
                 }
 
 
+                if(dtpCheckIn.Value.Date >= dtpCheckOut.Value.Date){
+                    MessageBox.Show("Check-in date should be before Check-out date.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // if(DateTime.Now.Date > dtpCheckIn.Value.Date || DateTime.Now.Date >  dtpCheckOut.Value.Date){
+                //     MessageBox.Show("Check-in date and Check-out date should be in the future.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //     return;
+                // }
+
+
                 // Create Resident object
                 var resident = new Resident
                 {
@@ -1544,7 +1555,7 @@ namespace temp
                     RoomNumber = roomNumber
                 };
                 resident.TotalPrice = dataStore.CalculateCost(resident, roomExists);
-                resident.NumberOfNights = (resident.CheckOut - resident.CheckIn).Days + 1;
+                resident.NumberOfNights = (resident.CheckOut.Date - resident.CheckIn.Date).Days;
 
                 dataStore.AddResident(resident);
                 roomStatusManager.NotifyRoomStatusChange(roomExists);

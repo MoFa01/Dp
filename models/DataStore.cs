@@ -367,7 +367,7 @@ public sealed class DataStore
 
     public decimal CalculateCost(Resident resident, Room room)
     {
-        int numberOfNights = (resident.CheckOut - resident.CheckIn).Days + 1; // here take care may lead to 0
+        int numberOfNights = (resident.CheckOut.Date - resident.CheckIn.Date).Days; // here take care may lead to 0
 
 
         var boardingCost = 0;
