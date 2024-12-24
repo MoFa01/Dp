@@ -4,6 +4,7 @@ public interface IWorkerRepository
     void AddWorker(Worker worker);
     void UpdateWorker(Worker worker);
     bool DeleteWorker(string workerId);
+    string RecoverPassword(string email, string token ,string newPassword);
 }
 public class WorkerRepository : IWorkerRepository
 {
@@ -51,6 +52,14 @@ public class WorkerRepository : IWorkerRepository
             return true;
         }
         return false;
+    }
+    public string RecoverPassword(string email, string token ,string newPassword){
+        var worker = dataStore.workers.FirstOrDefault(w => w.email == email && w.Token == token);
+        if(worker == null){
+            return null;
+        }
+        worker.Password =  newPassword;
+        return newPassword;
     }
 
     

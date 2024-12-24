@@ -70,36 +70,7 @@ public sealed class DataStore
 
 
     public void AddRoom(Room room) => rooms.Add(room);
-    public List<string> ViewResidentInformation()
-    {
-        var residentInfoList = new List<string>();
-
-        foreach (var resident in residents)
-        {
-            // Fetch the room details
-            var room = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-
-            // Calculate stay duration
-            TimeSpan stayDuration = resident.CheckOut - resident.CheckIn;
-
-            // Build resident information
-            string residentInfo = $"Resident ID: {resident.Id}\n" +
-                                  $"Name: {resident.Name}\n" +
-                                  $"Phone: {resident.phoneNumber}\n" +
-                                  $"Email: {resident.email}\n" +
-                                  $"Boarding Type: {resident.BoardingType}\n" +
-                                  $"Room Number: {resident.RoomNumber} ({room?.Type ?? "N/A"})\n" +
-                                  $"Base Price: {(room?.BasePrice.ToString("C") ?? "N/A")}\n" +
-                                  $"Check-In: {resident.CheckIn.ToShortDateString()}\n" +
-                                  $"Check-Out: {resident.CheckOut.ToShortDateString()}\n" +
-                                  $"Stay Duration: {stayDuration.Days} days\n";
-
-            // Add to the list
-            residentInfoList.Add(residentInfo);
-        }
-
-        return residentInfoList;
-    }
+    
 
     public void UpdateRoom(Room room)
     {
@@ -227,12 +198,5 @@ public sealed class DataStore
         }
     }
 
-    public string RecoverPassword(string email, string token ,string newPassword = "123455"){
-        var worker = workers.FirstOrDefault(w => w.email == email && w.Token == token);
-        if(worker == null){
-            return null;
-        }
-        worker.Password =  newPassword;
-        return newPassword;
-    }
+    
 }

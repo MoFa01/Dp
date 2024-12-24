@@ -1007,7 +1007,7 @@ namespace temp
                 string token = txtToken.Text;
                 string newPasswordRtext = txtnewPassword.Text;
                 // Call RecoverPassword method
-                string newPassword = dataStore.RecoverPassword(email, token,newPasswordRtext);
+                string newPassword = workerRepository.RecoverPassword(email, token,newPasswordRtext);
                 if (newPassword != null)
                 {
                     MessageBox.Show($"Password Reset Successful! New Password: {newPassword}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
