@@ -13,8 +13,9 @@ namespace temp
         private Button btnBackToLogin;
         private readonly DataStore dataStore = DataStore.Instance;
         private IWorkerRepository workerRepository = new WorkerRepository();
+        private IResidentRepository residentRepository = new ResidentRepository();
 
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -735,13 +736,13 @@ namespace temp
                 ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
-            if (dataStore.Residents is null || dataStore.Residents.Count == 0)
+            if (residentRepository.GetAllResidents() is null || residentRepository.GetAllResidents().Count == 0)
             {
 
             }
             else
             {
-                dgvWorkers.DataSource = dataStore.Residents;
+                dgvWorkers.DataSource = residentRepository.GetAllResidents();
             }
 
 
@@ -810,7 +811,7 @@ namespace temp
 
                 string period = cmbPeriod.SelectedItem.ToString().ToLower();
                 //List<string> report = dataStore.TrackHotelIncomeReport(period);
-                var reportObj = new HotelIncomeReport(dataStore.Residents, dataStore.Rooms, period);
+                var reportObj = new HotelIncomeReport(residentRepository.GetAllResidents(), dataStore.Rooms, period);
 
                 // Generate the report
                 var report = reportObj.GenerateReport();
@@ -1167,13 +1168,13 @@ namespace temp
                 ReadOnly = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
-            if (dataStore.Residents is null || dataStore.Residents.Count == 0)
+            if (residentRepository.GetAllResidents() is null || residentRepository.GetAllResidents().Count == 0)
             {
 
             }
             else
             {
-                dgvWorkers.DataSource = dataStore.Residents;
+                dgvWorkers.DataSource = residentRepository.GetAllResidents();
             }
             var btnEdit = new Button
             {
@@ -1223,12 +1224,12 @@ namespace temp
 
                         if (confirmation == DialogResult.Yes)
                         {
-                            var isDeleted = dataStore.DeleteResident(selectedWorker.Id);
+                            var isDeleted = residentRepository.DeleteResident(selectedWorker.Id);
                             if (isDeleted)
                             {
                                 MessageBox.Show("Resident deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 dgvWorkers.DataSource = null;
-                                dgvWorkers.DataSource = dataStore.Residents; // Refresh the data grid
+                                dgvWorkers.DataSource = residentRepository.GetAllResidents(); // Refresh the data grid
                             }
                             else
                             {
@@ -1350,7 +1351,7 @@ namespace temp
                 selectedResident.phoneNumber = txtPhoneNumber.Text;
                 selectedResident.email = txtEmail.Text;
 
-                dataStore.EditResident(txtId.Text, selectedResident);
+                residentRepository.EditResident(txtId.Text, selectedResident);
 
                 MessageBox.Show("Resident details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ShowAllResidents(); // Go back to Resident Management page
@@ -1554,11 +1555,11 @@ namespace temp
                     CheckOut = dtpCheckOut.Value,
                     RoomNumber = roomNumber
                 };
-                resident.TotalPrice = dataStore.CalculateCost(resident, roomExists);
+                resident.TotalPrice = residentRepository.CalculateCost(resident, roomExists);
                 resident.NumberOfNights = (resident.CheckOut.Date - resident.CheckIn.Date).Days;
 
-                dataStore.AddResident(resident);
-                decimal costTotal = dataStore.CalculateCost(resident, roomExists);
+                residentRepository.AddResident(resident);
+                decimal costTotal = residentRepository.CalculateCost(resident, roomExists);
                 var totalCost = costTotal.ToString();
 
 

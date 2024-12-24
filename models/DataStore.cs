@@ -4,9 +4,9 @@ public sealed class DataStore
 
     public string ManagerEmail = "admin@gmail.com", ManagerPassword = "admin", MangerToken = "12345";
 
-    private readonly List<Room> rooms = new();
+    public readonly List<Room> rooms = new();
     public readonly List<Worker> workers = new();
-    private readonly List<Resident> residents = new();
+    public readonly List<Resident> residents = new();
 
     private DataStore()
     {
@@ -16,7 +16,6 @@ public sealed class DataStore
     public static DataStore Instance => instance;
 
     public IReadOnlyList<Room> Rooms => rooms;
-    public IReadOnlyList<Resident> Residents => residents;
 
     private void InitializeData()
     {
@@ -56,17 +55,7 @@ public sealed class DataStore
         workers.Add(new Worker { Id = "1", Name = "Alice", email = "alice@gmail.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "receptionist", Token = "abc123" });
 
     }
-    public void AddResident(Resident resident)
-    {
-
-        ITokenService realService = new TokenService();
-        ITokenService proxy = new TokenServiceProxy(realService);
-        resident.Id = proxy.CreateUniqueiId();
-        residents.Add(resident);
-        var roomExists = rooms.Where(r => r.RoomNumber == resident.RoomNumber).FirstOrDefault();
-        roomExists.IsOccupied = true;
-        //dataStore.UpdateRoom(room);
-    }
+   
 
 
     public void AddRoom(Room room) => rooms.Add(room);
@@ -82,88 +71,7 @@ public sealed class DataStore
     }
 
     
-    //--------------------------> Role WORKER for:  Resident <-------------------------------
-    public bool EditResident(string residentId, Resident updatedResident)
-    {
-        var resident = residents.FirstOrDefault(r => r.Id == residentId);
-
-        if (resident == null)
-        {
-            return false; // Resident not found
-        }
-
-        // Update resident details
-        resident.Name = updatedResident.Name;
-        resident.phoneNumber = updatedResident.phoneNumber;
-        resident.email = updatedResident.email;
-        resident.BoardingType = updatedResident.BoardingType;
-        resident.CheckIn = updatedResident.CheckIn;
-        resident.CheckOut = updatedResident.CheckOut;
-        resident.RoomNumber = updatedResident.RoomNumber;
-
-        // // Ensure room assignment consistency
-        // var assignedRoom = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-        // if (assignedRoom != null)
-        // {
-        //     assignedRoom.IsOccupied = true; // Mark the room as occupied
-        // }
-
-        return true;
-    }
-    public bool DeleteResident(string residentId)
-    {
-        var resident = residents.FirstOrDefault(r => r.Id == residentId);
-        if (resident == null)
-        {
-            return false; // Resident not found
-        }
-
-        DateTime now = DateTime.Now;
-
-        if (resident.CheckOut > now)
-        {
-            // Update room status to not occupied
-            var assignedRoom = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-            if (assignedRoom != null)
-            {
-                assignedRoom.IsOccupied = false;
-            }
-
-        }
-
-        residents.Remove(resident); // Remove resident from the list
-        return true;
-    }
-
     
-    
-
-    public decimal CalculateCost(Resident resident, Room room)
-    {
-        int numberOfNights = (resident.CheckOut.Date - resident.CheckIn.Date).Days; // here take care may lead to 0
-
-
-        var boardingCost = 0;
-        if (resident.BoardingType == "FullBoard")
-        {
-            boardingCost = 50;
-        }
-        else if (resident.BoardingType == "HalfBoard")
-        {
-            boardingCost = 30;
-        }
-        else if (resident.BoardingType == "BedAndBreakfast")
-        {
-            boardingCost = 15;
-        }
-        else
-        {
-            throw new ArgumentException("Invalid room type");
-        }
-
-        return (room.BasePrice + boardingCost) * numberOfNights;
-    }
-
 
     public void UpdateRoomStatusAfterCheckout()
     {
