@@ -7,7 +7,6 @@ public sealed class DataStore
     private readonly List<Room> rooms = new();
     private readonly List<Worker> workers = new();
     private readonly List<Resident> residents = new();
-    private Dictionary<string, Worker> _authorizedWorkers;
 
     private DataStore()
     {
@@ -21,12 +20,6 @@ public sealed class DataStore
 
     private void InitializeData()
     {
-        _authorizedWorkers = new Dictionary<string, Worker>();
-
-
-        // Initialize with some sample data
-
-        // Add some rooms
         for (int i = 1; i <= 6; i++)
         {
             rooms.Add(new Room
@@ -36,26 +29,31 @@ public sealed class DataStore
                 IsOccupied = false,
                 BasePrice = 50
             });
+        }
+        for (int i = 7; i <= 14; i++)
+        {
             rooms.Add(new Room
             {
-                RoomNumber = i + 6,
+                RoomNumber = i ,
                 Type = "Double",
                 IsOccupied = false,
                 BasePrice = 75
             });
+        }
+        for (int i = 15; i <= 21; i++)
+        {
             rooms.Add(new Room
             {
-                RoomNumber = i + 13,
+                RoomNumber = i,
                 Type = "Triple",
                 IsOccupied = false,
                 BasePrice = 100
             });
-
         }
 
 
 
-        workers.Add(new Worker { Id = "1", Name = "Alice", email = "alice@example.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "Manager", Token = "abc123" });
+        workers.Add(new Worker { Id = "1", Name = "Alice", email = "alice@gmail.com", Password = "1234", Contact = "123-456-7890", Salary = 50000, JobTitle = "receptionist", Token = "abc123" });
 
     }
     public void AddResident(Resident resident)
@@ -127,7 +125,6 @@ public sealed class DataStore
         string token1 = proxy.CreateToken(worker.Id);
         worker.Token = token1;
         workers.Add(worker);
-        _authorizedWorkers[token1] = worker;
     }
     public void UpdateWorker(Worker worker)
     {
@@ -149,148 +146,11 @@ public sealed class DataStore
         if (worker != null)
         {
             workers.Remove(worker);
-            _authorizedWorkers.Remove(worker.Token);
             return true;
         }
         return false;
     }
-
-
-    //--------------------------> Role MANGER: Track Hotel Income: <-------------------------------
-    public decimal TrackHotelIncome(string period)
-    {
-        DateTime now = DateTime.Now;
-        DateTime startDate = period.ToLower() switch
-        {
-            "weekly" => now.AddDays(-7),
-            "monthly" => now.AddMonths(-1),
-            "annual" => now.AddYears(-1),
-            _ => throw new ArgumentException("Invalid period. Use 'weekly', 'monthly', or 'annual'.")
-        };
-
-        decimal totalIncome = 0;
-
-        foreach (var resident in residents)
-        {
-            // Check if the stay falls within the selected period
-            if (resident.CheckOut >= startDate && resident.CheckIn <= now)
-            {
-                var room = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-
-                if (room != null)
-                {
-                    // Determine boarding cost
-                    decimal boardingCost = resident.BoardingType switch
-                    {
-                        "FullBoard" => 50,
-                        "HalfBoard" => 30,
-                        "BedAndBreakfast" => 15,
-                        _ => throw new ArgumentException("Invalid boarding type")
-                    };
-
-                    // Adjust dates to fit the reporting period
-                    DateTime effectiveCheckIn = resident.CheckIn < startDate ? startDate : resident.CheckIn;
-                    DateTime effectiveCheckOut = resident.CheckOut > now ? now : resident.CheckOut;
-
-                    TimeSpan duration = effectiveCheckOut - effectiveCheckIn;
-
-                    // Calculate income for this resident
-                    totalIncome += (room.BasePrice + boardingCost) * duration.Days;
-                }
-            }
-        }
-
-        return totalIncome;
-    }
-
-    public List<string> TrackHotelIncomeReport(string period)
-    {
-        DateTime now = DateTime.Now;
-        DateTime startDate = period.ToLower() switch
-        {
-            "weekly" => now.AddDays(-7),
-            "monthly" => now.AddMonths(-1),
-            "annual" => now.AddYears(-1),
-            _ => throw new ArgumentException("Invalid period. Use 'weekly', 'monthly', or 'annual'.")
-        };
-
-        decimal totalIncome = 0;
-        var reportLines = new List<string>();
-
-        // Add report header
-        reportLines.Add($"Hotel Income Report - {period.ToUpper()} Period");
-        reportLines.Add($"Report Generated: {now:yyyy-MM-dd HH:mm:ss}");
-        reportLines.Add($"Period Start: {startDate:yyyy-MM-dd}");
-        reportLines.Add($"Period End: {now:yyyy-MM-dd}");
-        reportLines.Add("--------------------------------------------");
-
-        foreach (var resident in residents)
-        {
-            // Check if the stay falls within the selected period
-            if (resident.CheckOut >= startDate && resident.CheckIn < now)
-            {
-                var room = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
-
-                if (room != null)
-                {
-                    // Determine boarding cost
-                    decimal boardingCost = resident.BoardingType switch
-                    {
-                        "FullBoard" => 50,
-                        "HalfBoard" => 30,
-                        "BedAndBreakfast" => 15,
-                        _ => throw new ArgumentException("Invalid boarding type")
-                    };
-
-                    // Adjust dates to fit the reporting period
-                    DateTime effectiveCheckIn = resident.CheckIn < startDate ? startDate : resident.CheckIn;
-                    DateTime effectiveCheckOut = resident.CheckOut > now ? now : resident.CheckOut;
-
-                    TimeSpan duration = effectiveCheckOut - effectiveCheckIn;
-                    decimal residentIncome = (room.BasePrice + boardingCost) * duration.Days;
-
-                    totalIncome += residentIncome;
-
-                    // Create a detailed report line for each resident
-                    reportLines.Add($"Resident Details:");
-                    reportLines.Add($"  Name: {resident.Name}");
-                    reportLines.Add($"  Room Number: {resident.RoomNumber}");
-                    reportLines.Add($"  Boarding Type: {resident.BoardingType}");
-                    reportLines.Add($"  Check-In: {resident.CheckIn:yyyy-MM-dd}");
-                    reportLines.Add($"  Check-Out: {resident.CheckOut:yyyy-MM-dd}");
-                    reportLines.Add($"  Effective Stay Period: {effectiveCheckIn:yyyy-MM-dd} to {effectiveCheckOut:yyyy-MM-dd}");
-                    reportLines.Add($"  Stay Duration: {duration.Days} days");
-                    reportLines.Add($"  Room Base Price: ${room.BasePrice} per day");
-                    reportLines.Add($"  Boarding Cost: ${boardingCost} per day");
-                    reportLines.Add($"  Total Resident Income: ${residentIncome:F2}");
-                    reportLines.Add("--------------------------------------------");
-                }
-            }
-        }
-
-        // Add total income summary
-        reportLines.Add($"TOTAL INCOME FOR {period.ToUpper()} PERIOD: ${totalIncome:F2}");
-
-        return reportLines;
-    }
-
-    public string? IsAuthManger(string username, string password)
-    {
-        if (username == ManagerEmail && password == ManagerPassword)
-        {
-            return MangerToken;
-        }
-        return null;
-    }
-    public bool IsAuthMangerByToken(string token)
-    {
-        if (token == MangerToken)
-        {
-            return true;
-        }
-        return false;
-    }
-
+ 
     //--------------------------> Role WORKER for:  Resident <-------------------------------
     public bool EditResident(string residentId, Resident updatedResident)
     {
@@ -344,26 +204,8 @@ public sealed class DataStore
         return true;
     }
 
-    public string AuthenticateWorker(string email, string password)
-    {
-        var worker = workers.FirstOrDefault(w => w.email == email && w.Password == password);
-
-        if (worker == null)
-        {
-            throw new ArgumentException("Invalid email or password.");
-        }
-
-        if (_authorizedWorkers.ContainsValue(worker))
-        {
-            return worker.Token;
-        }
-
-        throw new InvalidOperationException("Worker is not authorized.");
-    }
-    public bool ValidateToken(string token)
-    {
-        return _authorizedWorkers.ContainsKey(token);
-    }
+    
+    
 
     public decimal CalculateCost(Resident resident, Room room)
     {
