@@ -14,6 +14,7 @@ namespace temp
         private readonly DataStore dataStore = DataStore.Instance;
         private IWorkerRepository workerRepository = new WorkerRepository();
         private IResidentRepository residentRepository = new ResidentRepository();
+        private IRoomRepository roomRepository = new RoomRepository();
 
         
         public Form1()
@@ -201,7 +202,7 @@ namespace temp
                 AllowUserToAddRows = false, // Prevent adding rows
                 AllowUserToDeleteRows = false, // Prevent deleting rows
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                DataSource = dataStore.Rooms
+                DataSource = roomRepository.GetAllRooms()
             };
             var btnAddRoom = new Button
             {
@@ -676,7 +677,7 @@ namespace temp
 
                     try
                     {
-                        var existRoomId = dataStore.Rooms.Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
+                        var existRoomId = roomRepository.GetAllRooms().Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
                         if (existRoomId != null)
                         {
                             MessageBox.Show($"Room with number {roomNumber} already exists.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -684,7 +685,7 @@ namespace temp
                         }
 
                         Room newRoom = RoomFactory.CreateRoom(roomType, roomNumber, isOccupied);
-                        dataStore.AddRoom(newRoom);
+                        roomRepository.AddRoom(newRoom);
                         MessageBox.Show("Room added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ShowAdminPanel(); // Return to Admin Panel
                     }
@@ -811,7 +812,7 @@ namespace temp
 
                 string period = cmbPeriod.SelectedItem.ToString().ToLower();
                 //List<string> report = dataStore.TrackHotelIncomeReport(period);
-                var reportObj = new HotelIncomeReport(residentRepository.GetAllResidents(), dataStore.Rooms, period);
+                var reportObj = new HotelIncomeReport(residentRepository.GetAllResidents(), roomRepository.GetAllRooms(), period);
 
                 // Generate the report
                 var report = reportObj.GenerateReport();
@@ -1108,7 +1109,7 @@ namespace temp
             };
             btnUpdateRoomStatusAfterCheckout.Click += (s, e) =>
             {
-                dataStore.UpdateRoomStatusAfterCheckout();
+                roomRepository.UpdateRoomStatusAfterCheckout();
                 MessageBox.Show("Rooms Updated seccessfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
@@ -1136,7 +1137,7 @@ namespace temp
                 AllowUserToAddRows = false, // Prevent adding rows
                 AllowUserToDeleteRows = false, // Prevent deleting rows
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                DataSource = dataStore.Rooms
+                DataSource = roomRepository.GetAllRooms()
             };
 
             // Back Button
@@ -1505,7 +1506,7 @@ namespace temp
                 }
 
                 // Check if room exists
-                var roomExists = dataStore.Rooms.Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
+                var roomExists = roomRepository.GetAllRooms().Where(r => r.RoomNumber == roomNumber).FirstOrDefault();
                 if (roomExists == null)
                 {
                     MessageBox.Show("Room not found. Please check the Room Number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

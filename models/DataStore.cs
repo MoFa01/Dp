@@ -15,8 +15,6 @@ public sealed class DataStore
 
     public static DataStore Instance => instance;
 
-    public IReadOnlyList<Room> Rooms => rooms;
-
     private void InitializeData()
     {
         for (int i = 1; i <= 6; i++)
@@ -56,55 +54,4 @@ public sealed class DataStore
 
     }
    
-
-
-    public void AddRoom(Room room) => rooms.Add(room);
-    
-
-    public void UpdateRoom(Room room)
-    {
-        var existingRoom = rooms.FirstOrDefault(r => r.RoomNumber == room.RoomNumber);
-        if (existingRoom != null)
-        {
-            existingRoom.IsOccupied = room.IsOccupied;
-        }
-    }
-
-    
-    
-
-    public void UpdateRoomStatusAfterCheckout()
-    {
-        DateTime currentTime = DateTime.Now;
-
-        // Find all rooms that should be marked as unoccupied
-        var roomsToUpdate = residents
-            .Where(r => r.CheckOut < currentTime)
-            .Select(r => r.RoomNumber)
-            .Distinct()
-            .ToList();
-
-        foreach (var roomNumber in roomsToUpdate)
-        {
-            // Find the specific room
-            var room = rooms.FirstOrDefault(r => r.RoomNumber == roomNumber);
-
-            if (room != null)
-            {
-                // Check if there are no active reservations for this room
-                bool hasActiveReservation = residents.Any(r =>
-                    r.RoomNumber == roomNumber &&
-                    r.CheckIn <= currentTime &&
-                    r.CheckOut > currentTime);
-
-                // Update room status only if no active reservations exist
-                if (!hasActiveReservation)
-                {
-                    room.IsOccupied = false;
-                }
-            }
-        }
-    }
-
-    
 }
