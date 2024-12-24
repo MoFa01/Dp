@@ -53,7 +53,7 @@ public class HotelIncomeReport
         var reportLines = new List<string>();
         decimal totalIncome = 0;
 
-        // Add report header
+        
         reportLines.Add($"Hotel Income Report - {periodStrategy.GetPeriodName().ToUpper()} Period");
         reportLines.Add($"Report Generated: {endDate:yyyy-MM-dd HH:mm:ss}");
         reportLines.Add($"Period Start: {startDate:yyyy-MM-dd}");
@@ -62,8 +62,8 @@ public class HotelIncomeReport
 
         foreach (var resident in residents)
         {
-            // Check if the stay falls within the selected period
-            if (resident.CheckOut >= startDate && resident.CheckIn < endDate)
+            
+            if (resident.CheckOut >= startDate && resident.CheckIn.Date < endDate.Date)
             {
                 var room = rooms.FirstOrDefault(r => r.RoomNumber == resident.RoomNumber);
                 if (room != null)
